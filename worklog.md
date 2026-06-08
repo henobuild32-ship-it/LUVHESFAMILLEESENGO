@@ -72,3 +72,38 @@ Stage Summary:
 - Added Notifications and Paramètres sidebar items as requested in Phase 3
 - Complete admin dashboard now fully functional with all 7 menu items
 - All features browser-verified end-to-end
+
+---
+Task ID: 14
+Agent: Main Agent
+Task: Expand registration form with all fields, fix generated link, update footer text, remove dummy data
+
+Work Log:
+- Updated Prisma schema: added lieuNaissance, nationalite, adresseActuelle, commune, ville, telephoneSecondaire, niveauEtudes, professionActuelle, situationMatrimoniale, engagement fields
+- Force-reset database and pushed new schema
+- Updated /api/registration POST route with all new field handling, validation for situation matrimoniale and engagement checkbox
+- Updated /api/registration GET route with expanded search (ville, commune fields)
+- Fixed /api/admin/generate-link to return full URL using request headers (protocol + host)
+- Added NIVEAUX_ETUDES constant (9 options: Aucun through Doctorat)
+- Added SITUATIONS_MATRIMONIALES constant (4 options: Célibataire, Marié(e), Veuf(ve), Divorcé(e))
+- Expanded RegistrationView form to 5 Card sections:
+  - Card 1: Informations Personnelles (Nom, Post-nom, Prénom, Sexe, Date+Lieu naissance, Nationalité, Adresse, Commune, Ville, WhatsApp, Tél secondaire, Email)
+  - Card 2: Situation Personnelle (Niveau d'études dropdown, Profession actuelle, Situation matrimoniale radio buttons)
+  - Card 3: Photo Passeport (upload with preview)
+  - Card 4: Filière Souhaitée (13 options + Autre)
+  - Card 5: Engagement du candidat (required checkbox with certification text)
+- Updated footer text to include "HENOCK ADUMA INFORMATICIEN"
+- Updated Admin detail dialog with all fields organized in sections (Personal Info, Situation Personnelle, Formation)
+- Added admin actions: Imprimer la fiche (window.print), Répondre par Email (mailto link), Répondre par WhatsApp (wa.me link)
+- Updated CSV export to include all 20 columns
+- Reduced Prisma logging from 'query' to 'error'/'warn' to prevent performance issues
+- Verified registration POST via curl: successfully created with all fields (201 response)
+- Lint passes clean
+
+Stage Summary:
+- Registration form now has ALL requested fields (20+ fields across 5 card sections)
+- Generated inscription link returns full URL
+- Footer text updated with HENOCK ADUMA INFORMATICIEN
+- No dummy/fictive data in admin interface
+- Admin detail view shows all candidate fields + print/email/WhatsApp actions
+- Engagement checkbox is mandatory before submission

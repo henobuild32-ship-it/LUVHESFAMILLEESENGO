@@ -9,7 +9,8 @@ import {
   Users, FolderOpen, Globe2, HeartHandshake, Sparkles, Quote, ExternalLink,
   CreditCard, Smartphone, LayoutDashboard, Link2, UserCheck, BarChart3,
   LogOut, Search, Filter, Download, Share2, Loader2, ChevronUp, Camera,
-  ArrowDownToLine, Trash2, CheckCircle2, XCircle, Clock, AlertTriangle
+  ArrowDownToLine, Trash2, CheckCircle2, XCircle, Clock, AlertTriangle,
+  Printer
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -46,11 +47,21 @@ interface Registration {
   prenom: string
   sexe: string
   dateNaissance: string
+  lieuNaissance: string
+  nationalite: string
+  adresseActuelle: string
+  commune: string
+  ville: string
   whatsapp: string
+  telephoneSecondaire: string | null
   email: string
+  niveauEtudes: string
+  professionActuelle: string
+  situationMatrimoniale: string
   photoPath: string
   filiere: string
   filiereAutre: string | null
+  engagement: boolean
   statut: string
   commentaire: string | null
   createdAt: string
@@ -160,6 +171,15 @@ const FILIERES = [
   'Électricité', 'Mécanique', 'Entrepreneuriat', 'Autre'
 ]
 
+const NIVEAUX_ETUDES = [
+  'Aucun', 'Primaire', 'Secondaire', "Diplôme d'État", 'Graduat',
+  'Licence', 'Master', 'Doctorat', 'Autre'
+]
+
+const SITUATIONS_MATRIMONIALES = [
+  'Célibataire', 'Marié(e)', 'Veuf(ve)', 'Divorcé(e)'
+]
+
 /* ─── ANIMATED COUNTER COMPONENT ─── */
 function AnimatedCounter({ value, suffix }: { value: number; suffix: string }) {
   const ref = useRef<HTMLSpanElement>(null)
@@ -250,7 +270,10 @@ function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }
 function RegistrationView({ onBack }: { onBack: () => void }) {
   const [formData, setFormData] = useState({
     nom: '', postnom: '', prenom: '', sexe: '', dateNaissance: '',
-    whatsapp: '', email: '', filiere: '', filiereAutre: '',
+    lieuNaissance: '', nationalite: '', adresseActuelle: '', commune: '',
+    ville: '', whatsapp: '', telephoneSecondaire: '', email: '',
+    niveauEtudes: '', professionActuelle: '', situationMatrimoniale: '',
+    filiere: '', filiereAutre: '', engagement: false as boolean,
   })
   const [photo, setPhoto] = useState<File | null>(null)
   const [photoPreview, setPhotoPreview] = useState<string | null>(null)
@@ -281,8 +304,12 @@ function RegistrationView({ onBack }: { onBack: () => void }) {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!formData.nom || !formData.postnom || !formData.prenom || !formData.sexe ||
-        !formData.dateNaissance || !formData.whatsapp || !formData.email || !formData.filiere || !photo) {
-      toast.error('Veuillez remplir tous les champs obligatoires.')
+        !formData.dateNaissance || !formData.lieuNaissance || !formData.nationalite ||
+        !formData.adresseActuelle || !formData.commune || !formData.ville ||
+        !formData.whatsapp || !formData.email || !formData.niveauEtudes ||
+        !formData.professionActuelle || !formData.situationMatrimoniale ||
+        !formData.filiere || !photo || !formData.engagement) {
+      toast.error('Veuillez remplir tous les champs obligatoires et certifier votre engagement.')
       return
     }
     if (formData.filiere === 'Autre' && !formData.filiereAutre.trim()) {
@@ -297,10 +324,20 @@ function RegistrationView({ onBack }: { onBack: () => void }) {
       fd.append('prenom', formData.prenom)
       fd.append('sexe', formData.sexe)
       fd.append('dateNaissance', formData.dateNaissance)
+      fd.append('lieuNaissance', formData.lieuNaissance)
+      fd.append('nationalite', formData.nationalite)
+      fd.append('adresseActuelle', formData.adresseActuelle)
+      fd.append('commune', formData.commune)
+      fd.append('ville', formData.ville)
       fd.append('whatsapp', formData.whatsapp)
+      if (formData.telephoneSecondaire) fd.append('telephoneSecondaire', formData.telephoneSecondaire)
       fd.append('email', formData.email)
+      fd.append('niveauEtudes', formData.niveauEtudes)
+      fd.append('professionActuelle', formData.professionActuelle)
+      fd.append('situationMatrimoniale', formData.situationMatrimoniale)
       fd.append('filiere', formData.filiere)
       if (formData.filiere === 'Autre') fd.append('filiereAutre', formData.filiereAutre)
+      fd.append('engagement', 'true')
       fd.append('photo', photo)
 
       const res = await fetch('/api/registration', { method: 'POST', body: fd })
@@ -385,7 +422,7 @@ function RegistrationView({ onBack }: { onBack: () => void }) {
       {/* Form */}
       <div className="max-w-3xl mx-auto px-4 py-6 pb-16">
         <form onSubmit={handleSubmit} className="space-y-8">
-          {/* Informations Personnelles */}
+          {/* Card 1: Informations Personnelles */}
           <Card className="border-border/50">
             <CardHeader>
               <CardTitle className="font-serif text-xl flex items-center gap-2">
@@ -433,8 +470,40 @@ function RegistrationView({ onBack }: { onBack: () => void }) {
                   <Input type="date" name="dateNaissance" value={formData.dateNaissance} onChange={handleChange} required />
                 </div>
                 <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">Lieu de naissance <span className="text-red-500">*</span></label>
+                  <Input name="lieuNaissance" placeholder="Lieu de naissance" value={formData.lieuNaissance} onChange={handleChange} required />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">Nationalité <span className="text-red-500">*</span></label>
+                <Input name="nationalite" placeholder="Nationalité" value={formData.nationalite} onChange={handleChange} required />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">Adresse actuelle <span className="text-red-500">*</span></label>
+                <Input name="adresseActuelle" placeholder="Adresse actuelle" value={formData.adresseActuelle} onChange={handleChange} required />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">Commune <span className="text-red-500">*</span></label>
+                  <Input name="commune" placeholder="Commune" value={formData.commune} onChange={handleChange} required />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">Ville <span className="text-red-500">*</span></label>
+                  <Input name="ville" placeholder="Ville" value={formData.ville} onChange={handleChange} required />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
                   <label className="text-sm font-medium text-foreground">Numéro WhatsApp <span className="text-red-500">*</span></label>
                   <Input type="tel" name="whatsapp" placeholder="+243..." value={formData.whatsapp} onChange={handleChange} required />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-medium text-foreground">Téléphone secondaire <span className="text-muted-foreground text-xs">(optionnel)</span></label>
+                  <Input type="tel" name="telephoneSecondaire" placeholder="+243..." value={formData.telephoneSecondaire} onChange={handleChange} />
                 </div>
               </div>
 
@@ -445,7 +514,51 @@ function RegistrationView({ onBack }: { onBack: () => void }) {
             </CardContent>
           </Card>
 
-          {/* Photo Passeport */}
+          {/* Card 2: Situation Personnelle */}
+          <Card className="border-border/50">
+            <CardHeader>
+              <CardTitle className="font-serif text-xl flex items-center gap-2">
+                <Target className="size-5 text-emerald" />
+                Situation Personnelle
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">Niveau d&apos;études <span className="text-red-500">*</span></label>
+                <Select value={formData.niveauEtudes} onValueChange={(val) => setFormData((prev) => ({ ...prev, niveauEtudes: val }))}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Sélectionnez votre niveau d'études" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {NIVEAUX_ETUDES.map((n) => (
+                      <SelectItem key={n} value={n}>{n}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">Profession actuelle <span className="text-red-500">*</span></label>
+                <Input name="professionActuelle" placeholder="Profession actuelle" value={formData.professionActuelle} onChange={handleChange} required />
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-medium text-foreground">Situation matrimoniale <span className="text-red-500">*</span></label>
+                <div className="flex flex-wrap gap-3">
+                  {SITUATIONS_MATRIMONIALES.map((sit) => (
+                    <label key={sit} className={`flex items-center gap-2 px-4 py-2.5 rounded-lg border cursor-pointer transition-all duration-200 ${
+                      formData.situationMatrimoniale === sit ? 'border-emerald bg-emerald/10 text-emerald' : 'border-border hover:border-emerald/30'
+                    }`}>
+                      <input type="radio" name="situationMatrimoniale" value={sit} checked={formData.situationMatrimoniale === sit} onChange={handleChange} className="sr-only" />
+                      <span className="font-medium text-sm">{sit}</span>
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Card 3: Photo Passeport */}
           <Card className="border-border/50">
             <CardHeader>
               <CardTitle className="font-serif text-xl flex items-center gap-2">
@@ -478,7 +591,7 @@ function RegistrationView({ onBack }: { onBack: () => void }) {
             </CardContent>
           </Card>
 
-          {/* Filière */}
+          {/* Card 4: Filière Souhaitée */}
           <Card className="border-border/50">
             <CardHeader>
               <CardTitle className="font-serif text-xl flex items-center gap-2">
@@ -520,6 +633,34 @@ function RegistrationView({ onBack }: { onBack: () => void }) {
             </CardContent>
           </Card>
 
+          {/* Card 5: Engagement du candidat */}
+          <Card className="border-border/50">
+            <CardHeader>
+              <CardTitle className="font-serif text-xl flex items-center gap-2">
+                <CheckCircle2 className="size-5 text-emerald" />
+                Engagement du candidat
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <label className="flex items-start gap-3 cursor-pointer group">
+                <div className={`mt-0.5 flex items-center justify-center w-5 h-5 rounded border-2 transition-all duration-200 shrink-0 ${
+                  formData.engagement ? 'bg-emerald border-emerald' : 'border-border group-hover:border-emerald/50'
+                }`}>
+                  <input
+                    type="checkbox"
+                    checked={formData.engagement}
+                    onChange={(e) => setFormData((prev) => ({ ...prev, engagement: e.target.checked }))}
+                    className="sr-only"
+                  />
+                  {formData.engagement && <Check className="size-3.5 text-white" />}
+                </div>
+                <span className="text-sm text-foreground leading-relaxed">
+                  Je certifie que les informations fournies dans cette fiche sont exactes et complètes. <span className="text-red-500">*</span>
+                </span>
+              </label>
+            </CardContent>
+          </Card>
+
           {/* Submit */}
           <Button
             type="submit"
@@ -545,7 +686,7 @@ function RegistrationView({ onBack }: { onBack: () => void }) {
         <div className="mt-10 bg-warm rounded-xl p-6 border border-border/50 text-sm text-muted-foreground space-y-3">
           <p className="font-semibold text-foreground text-base">Cette fiche appartient à l&apos;ONGD LUVHES FAMILLE ESENGO.</p>
           <p>Certaines informations importantes telles que l&apos;adresse exacte du centre, les horaires, les dates d&apos;arrivée ainsi que le calendrier des formations selon la filière choisie ne sont pas affichées sur cette fiche.</p>
-          <p>Ces informations vous seront communiquées directement par le centre après validation de votre dossier.</p>
+          <p>Ces informations vous seront communiquées directement par le centre après validation de votre dossier. <strong className="text-foreground">HENOCK ADUMA INFORMATICIEN</strong></p>
           <p className="font-semibold text-emerald">Merci pour votre confiance.</p>
         </div>
       </div>
@@ -700,10 +841,13 @@ function AdminDashboard({ onLogout, token }: { onLogout: () => void; token: stri
 
   const exportData = (format: 'csv' | 'pdf') => {
     if (format === 'csv') {
-      const headers = ['Nom', 'Post-nom', 'Prénom', 'Sexe', 'Date naissance', 'WhatsApp', 'Email', 'Filière', 'Statut', 'Date inscription']
+      const headers = ['Nom', 'Post-nom', 'Prénom', 'Sexe', 'Date naissance', 'Lieu naissance', 'Nationalité', 'Adresse actuelle', 'Commune', 'Ville', 'WhatsApp', 'Tél. secondaire', 'Email', "Niveau d'études", 'Profession', 'Situation matrimoniale', 'Filière', 'Engagement', 'Statut', 'Date inscription']
       const rows = registrations.map(r => [
-        r.nom, r.postnom, r.prenom, r.sexe, r.dateNaissance, r.whatsapp, r.email,
+        r.nom, r.postnom, r.prenom, r.sexe, r.dateNaissance, r.lieuNaissance, r.nationalite,
+        r.adresseActuelle, r.commune, r.ville, r.whatsapp, r.telephoneSecondaire || '', r.email,
+        r.niveauEtudes, r.professionActuelle, r.situationMatrimoniale,
         r.filiere === 'Autre' ? r.filiereAutre || 'Autre' : r.filiere,
+        r.engagement ? 'Oui' : 'Non',
         r.statut, new Date(r.createdAt).toLocaleDateString('fr-FR')
       ])
       const csv = [headers.join(','), ...rows.map(r => r.map(c => `"${c}"`).join(','))].join('\n')
@@ -1047,16 +1191,16 @@ function AdminDashboard({ onLogout, token }: { onLogout: () => void; token: stri
 
               {/* Detail Dialog */}
               <Dialog open={selectedReg !== null} onOpenChange={(open) => { if (!open) setSelectedReg(null) }}>
-                <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+                <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                   <DialogTitle className="sr-only">Détails de l&apos;inscription</DialogTitle>
                   <DialogDescription className="sr-only">Détails complets de l&apos;inscription sélectionnée</DialogDescription>
                   {selectedReg && (
                     <div className="space-y-5">
                       {/* Photo & Name */}
                       <div className="flex items-center gap-4">
-                        <div className="relative w-20 h-20 rounded-xl overflow-hidden border-2 border-emerald/20 shrink-0">
-                          <Image src={selectedReg.photoPath} alt={`${selectedReg.prenom} ${selectedReg.nom}`} fill className="object-cover" sizes="80px" />
-                        </div>
+                        <a href={selectedReg.photoPath} target="_blank" rel="noopener noreferrer" className="relative w-24 h-24 rounded-xl overflow-hidden border-2 border-emerald/20 shrink-0 cursor-pointer hover:border-emerald/50 transition-colors">
+                          <Image src={selectedReg.photoPath} alt={`${selectedReg.prenom} ${selectedReg.nom}`} fill className="object-cover" sizes="96px" />
+                        </a>
                         <div>
                           <h3 className="font-serif text-xl font-bold text-foreground">
                             {selectedReg.nom} {selectedReg.postnom} {selectedReg.prenom}
@@ -1065,14 +1209,49 @@ function AdminDashboard({ onLogout, token }: { onLogout: () => void; token: stri
                         </div>
                       </div>
 
-                      {/* Info Grid */}
-                      <div className="grid grid-cols-2 gap-3 text-sm">
-                        <div><span className="text-muted-foreground">Sexe:</span> <span className="font-medium ml-1">{selectedReg.sexe}</span></div>
-                        <div><span className="text-muted-foreground">Naissance:</span> <span className="font-medium ml-1">{selectedReg.dateNaissance}</span></div>
-                        <div><span className="text-muted-foreground">WhatsApp:</span> <span className="font-medium ml-1">{selectedReg.whatsapp}</span></div>
-                        <div><span className="text-muted-foreground">Email:</span> <span className="font-medium ml-1 break-all">{selectedReg.email}</span></div>
-                        <div className="col-span-2"><span className="text-muted-foreground">Filière:</span> <span className="font-medium ml-1">{selectedReg.filiere === 'Autre' ? selectedReg.filiereAutre : selectedReg.filiere}</span></div>
-                        <div className="col-span-2"><span className="text-muted-foreground">Inscrit le:</span> <span className="font-medium ml-1">{new Date(selectedReg.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span></div>
+                      {/* Personal Info Section */}
+                      <div className="space-y-2">
+                        <h4 className="font-semibold text-foreground text-sm flex items-center gap-2">
+                          <Users className="size-4 text-emerald" />
+                          Informations Personnelles
+                        </h4>
+                        <div className="grid grid-cols-2 gap-3 text-sm bg-muted/30 rounded-lg p-4">
+                          <div><span className="text-muted-foreground">Sexe:</span> <span className="font-medium ml-1">{selectedReg.sexe}</span></div>
+                          <div><span className="text-muted-foreground">Date de naissance:</span> <span className="font-medium ml-1">{selectedReg.dateNaissance}</span></div>
+                          <div><span className="text-muted-foreground">Lieu de naissance:</span> <span className="font-medium ml-1">{selectedReg.lieuNaissance}</span></div>
+                          <div><span className="text-muted-foreground">Nationalité:</span> <span className="font-medium ml-1">{selectedReg.nationalite}</span></div>
+                          <div className="col-span-2"><span className="text-muted-foreground">Adresse actuelle:</span> <span className="font-medium ml-1">{selectedReg.adresseActuelle}</span></div>
+                          <div><span className="text-muted-foreground">Commune:</span> <span className="font-medium ml-1">{selectedReg.commune}</span></div>
+                          <div><span className="text-muted-foreground">Ville:</span> <span className="font-medium ml-1">{selectedReg.ville}</span></div>
+                          <div><span className="text-muted-foreground">WhatsApp:</span> <span className="font-medium ml-1">{selectedReg.whatsapp}</span></div>
+                          <div><span className="text-muted-foreground">Tél. secondaire:</span> <span className="font-medium ml-1">{selectedReg.telephoneSecondaire || '—'}</span></div>
+                          <div className="col-span-2"><span className="text-muted-foreground">Email:</span> <span className="font-medium ml-1 break-all">{selectedReg.email}</span></div>
+                        </div>
+                      </div>
+
+                      {/* Situation Section */}
+                      <div className="space-y-2">
+                        <h4 className="font-semibold text-foreground text-sm flex items-center gap-2">
+                          <Target className="size-4 text-emerald" />
+                          Situation Personnelle
+                        </h4>
+                        <div className="grid grid-cols-2 gap-3 text-sm bg-muted/30 rounded-lg p-4">
+                          <div><span className="text-muted-foreground">Niveau d&apos;études:</span> <span className="font-medium ml-1">{selectedReg.niveauEtudes}</span></div>
+                          <div><span className="text-muted-foreground">Profession:</span> <span className="font-medium ml-1">{selectedReg.professionActuelle}</span></div>
+                          <div><span className="text-muted-foreground">Situation matrimoniale:</span> <span className="font-medium ml-1">{selectedReg.situationMatrimoniale}</span></div>
+                        </div>
+                      </div>
+
+                      {/* Formation Section */}
+                      <div className="space-y-2">
+                        <h4 className="font-semibold text-foreground text-sm flex items-center gap-2">
+                          <Globe2 className="size-4 text-emerald" />
+                          Formation
+                        </h4>
+                        <div className="grid grid-cols-2 gap-3 text-sm bg-muted/30 rounded-lg p-4">
+                          <div className="col-span-2"><span className="text-muted-foreground">Filière:</span> <span className="font-medium ml-1">{selectedReg.filiere === 'Autre' ? selectedReg.filiereAutre : selectedReg.filiere}</span></div>
+                          <div className="col-span-2"><span className="text-muted-foreground">Date et heure d&apos;inscription:</span> <span className="font-medium ml-1">{new Date(selectedReg.createdAt).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</span></div>
+                        </div>
                       </div>
 
                       {/* Actions */}
@@ -1102,6 +1281,34 @@ function AdminDashboard({ onLogout, token }: { onLogout: () => void; token: stri
                           className="gap-1"
                         >
                           <Clock className="size-3.5" /> Remettre en attente
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => window.print()}
+                          className="gap-1"
+                        >
+                          <Printer className="size-3.5" /> Imprimer la fiche
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          asChild
+                          className="gap-1"
+                        >
+                          <a href={`mailto:${selectedReg.email}?subject=Réponse%20à%20votre%20inscription%20-%20ONGD%20LUVHES%20FAMILLE%20ESENGO&body=Bonjour%20${encodeURIComponent(selectedReg.prenom + ' ' + selectedReg.nom)},%0A%0ANous%20vous%20contactons%20concernant%20votre%20inscription%20à%20l'ONGD%20LUVHES%20FAMILLE%20ESENGO.%0A%0ACordialement,%0AAdministration%20ONGD%20LUVHES%20FAMILLE%20ESENGO`}>
+                            <Mail className="size-3.5" /> Répondre par Email
+                          </a>
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          asChild
+                          className="gap-1"
+                        >
+                          <a href={`https://wa.me/${selectedReg.whatsapp.replace(/[^0-9]/g, '')}?text=${encodeURIComponent(`Bonjour ${selectedReg.prenom} ${selectedReg.nom}, nous vous contactons concernant votre inscription à l'ONGD LUVHES FAMILLE ESENGO.`)}`} target="_blank" rel="noopener noreferrer">
+                            <MessageCircle className="size-3.5" /> Répondre par WhatsApp
+                          </a>
                         </Button>
                       </div>
 

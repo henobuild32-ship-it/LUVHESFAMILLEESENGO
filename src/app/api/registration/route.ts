@@ -12,16 +12,28 @@ export async function POST(request: NextRequest) {
     const prenom = formData.get('prenom') as string
     const sexe = formData.get('sexe') as string
     const dateNaissance = formData.get('dateNaissance') as string
+    const lieuNaissance = formData.get('lieuNaissance') as string
+    const nationalite = formData.get('nationalite') as string
+    const adresseActuelle = formData.get('adresseActuelle') as string
+    const commune = formData.get('commune') as string
+    const ville = formData.get('ville') as string
     const whatsapp = formData.get('whatsapp') as string
+    const telephoneSecondaire = formData.get('telephoneSecondaire') as string | null
     const email = formData.get('email') as string
+    const niveauEtudes = formData.get('niveauEtudes') as string
+    const professionActuelle = formData.get('professionActuelle') as string
+    const situationMatrimoniale = formData.get('situationMatrimoniale') as string
     const filiere = formData.get('filiere') as string
     const filiereAutre = formData.get('filiereAutre') as string | null
+    const engagement = formData.get('engagement') as string
     const photo = formData.get('photo') as File | null
 
     // Validate required fields
-    if (!nom || !postnom || !prenom || !sexe || !dateNaissance || !whatsapp || !email || !filiere) {
+    if (!nom || !postnom || !prenom || !sexe || !dateNaissance || !lieuNaissance ||
+        !nationalite || !adresseActuelle || !commune || !ville || !whatsapp || !email ||
+        !niveauEtudes || !professionActuelle || !situationMatrimoniale || !filiere) {
       return NextResponse.json(
-        { error: 'Tous les champs sont obligatoires.' },
+        { error: 'Tous les champs obligatoires doivent être remplis.' },
         { status: 400 }
       )
     }
@@ -29,6 +41,13 @@ export async function POST(request: NextRequest) {
     if (!photo) {
       return NextResponse.json(
         { error: 'La photo passeport est obligatoire.' },
+        { status: 400 }
+      )
+    }
+
+    if (engagement !== 'true') {
+      return NextResponse.json(
+        { error: 'Vous devez certifier que les informations sont exactes.' },
         { status: 400 }
       )
     }
@@ -46,6 +65,14 @@ export async function POST(request: NextRequest) {
     if (!['Masculin', 'Féminin'].includes(sexe)) {
       return NextResponse.json(
         { error: 'Valeur de sexe invalide.' },
+        { status: 400 }
+      )
+    }
+
+    // Validate situation matrimoniale
+    if (!['Célibataire', 'Marié(e)', 'Veuf(ve)', 'Divorcé(e)'].includes(situationMatrimoniale)) {
+      return NextResponse.json(
+        { error: 'Situation matrimoniale invalide.' },
         { status: 400 }
       )
     }
@@ -99,11 +126,21 @@ export async function POST(request: NextRequest) {
         prenom: prenom.trim(),
         sexe,
         dateNaissance,
+        lieuNaissance: lieuNaissance.trim(),
+        nationalite: nationalite.trim(),
+        adresseActuelle: adresseActuelle.trim(),
+        commune: commune.trim(),
+        ville: ville.trim(),
         whatsapp: whatsapp.trim(),
+        telephoneSecondaire: telephoneSecondaire?.trim() || null,
         email: email.trim().toLowerCase(),
+        niveauEtudes: niveauEtudes.trim(),
+        professionActuelle: professionActuelle.trim(),
+        situationMatrimoniale,
         photoPath: `/uploads/${fileName}`,
         filiere,
         filiereAutre: filiere === 'Autre' ? filiereAutre?.trim() : null,
+        engagement: true,
       },
     })
 
@@ -142,6 +179,8 @@ export async function GET(request: NextRequest) {
         { prenom: { contains: search } },
         { email: { contains: search } },
         { whatsapp: { contains: search } },
+        { ville: { contains: search } },
+        { commune: { contains: search } },
       ]
     }
 

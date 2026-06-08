@@ -8,21 +8,31 @@ datasource db {
 }
 
 model Registration {
-  id              String   @id @default(cuid())
-  nom             String
-  postnom         String
-  prenom          String
-  sexe            String
-  dateNaissance   String
-  whatsapp        String
-  email           String
-  photoPath       String
-  filiere         String
-  filiereAutre    String?
-  statut          String   @default("en_attente")
-  commentaire     String?
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  id                    String   @id @default(cuid())
+  nom                   String
+  postnom               String
+  prenom                String
+  sexe                  String
+  dateNaissance         String
+  lieuNaissance         String
+  nationalite           String
+  adresseActuelle       String
+  commune               String
+  ville                 String
+  whatsapp              String
+  telephoneSecondaire   String?
+  email                 String
+  niveauEtudes          String
+  professionActuelle    String
+  situationMatrimoniale String
+  photoPath             String
+  filiere               String
+  filiereAutre          String?
+  engagement            Boolean  @default(false)
+  statut                String   @default("en_attente")
+  commentaire           String?
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
 }
 
 model AdminSession {
