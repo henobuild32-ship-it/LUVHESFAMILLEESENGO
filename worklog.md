@@ -46,3 +46,29 @@ Stage Summary:
 - Link generation with share to WhatsApp/Facebook/Email/SMS
 - All 11 original website sections preserved
 - File: /src/app/page.tsx (2398 lines), lint clean
+
+---
+Task ID: 13
+Agent: Main Agent
+Task: Fix admin login race condition - admin dashboard not appearing after password entry
+
+Work Log:
+- Diagnosed race condition: `setAdminMode(true)` is batched (async React state) but `window.location.hash = '#admin'` fires synchronously, triggering hashchange listener that still sees `adminMode === false` and redirects to `#accueil`
+- Added `adminModeRef` (useRef) to track adminMode synchronously alongside React state
+- Updated `handleAdminLogin` to: (1) set `adminModeRef.current = true` synchronously, (2) directly call `setCurrentView('admin')` instead of relying on hash change
+- Updated `handleAdminLogout` to reset `adminModeRef.current = false` and directly set `setCurrentView('main')`
+- Updated `checkAdminTokenOnMount` to also set `adminModeRef.current = true`
+- Updated hash routing useEffect to use `adminModeRef.current` instead of stale closure `adminMode`
+- Added missing sidebar items: Notifications and Paramètres (was requested in Phase 3)
+- Notifications tab: shows pending registrations count with action buttons to navigate to fiches
+- Paramètres tab: shows admin info, security status (SQL injection protection, data validation, auth, session expiry), and session management with logout
+- All 7 sidebar items now present: Tableau de bord, Générer une fiche, Fiches inscrites, Statistiques, Notifications, Paramètres, Déconnexion
+- Verified with agent-browser: double-click Sparkles → password entry → admin dashboard appears correctly
+- Verified all 7 admin tabs work: dashboard stats, link generation, registrations list, statistics charts, notifications, settings, logout
+- Lint clean, dev server running without errors
+
+Stage Summary:
+- Fixed critical race condition preventing admin dashboard from appearing after login
+- Added Notifications and Paramètres sidebar items as requested in Phase 3
+- Complete admin dashboard now fully functional with all 7 menu items
+- All features browser-verified end-to-end

@@ -575,6 +575,8 @@ function AdminDashboard({ onLogout, token }: { onLogout: () => void; token: stri
     { id: 'generate', label: 'Générer une fiche', icon: Link2 },
     { id: 'registrations', label: 'Fiches inscrites', icon: UserCheck },
     { id: 'statistics', label: 'Statistiques', icon: BarChart3 },
+    { id: 'notifications', label: 'Notifications', icon: AlertTriangle },
+    { id: 'settings', label: 'Paramètres', icon: Target },
     { id: 'logout', label: 'Déconnexion', icon: LogOut },
   ]
 
@@ -1209,6 +1211,166 @@ function AdminDashboard({ onLogout, token }: { onLogout: () => void; token: stri
               </Card>
             </motion.div>
           )}
+
+          {/* Notifications */}
+          {activeTab === 'notifications' && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+              <Card className="border-border/50">
+                <CardHeader>
+                  <CardTitle className="font-serif text-xl flex items-center gap-2">
+                    <AlertTriangle className="size-5 text-gold" />
+                    Notifications
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {stats && stats.enAttente > 0 ? (
+                    <div className="space-y-3">
+                      <div className="flex items-start gap-3 p-4 bg-yellow-50 dark:bg-yellow-500/10 rounded-xl border border-yellow-200 dark:border-yellow-500/20">
+                        <Clock className="size-5 text-yellow-600 shrink-0 mt-0.5" />
+                        <div>
+                          <p className="font-medium text-foreground">
+                            {stats.enAttente} inscription{stats.enAttente > 1 ? 's' : ''} en attente de traitement
+                          </p>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Consultez les fiches inscrites pour accepter ou refuser les candidatures.
+                          </p>
+                          <Button
+                            size="sm"
+                            className="mt-3 bg-emerald hover:bg-emerald/90 text-white"
+                            onClick={() => setActiveTab('registrations')}
+                          >
+                            <UserCheck className="size-4 mr-1" /> Voir les fiches
+                          </Button>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8">
+                      <CheckCircle2 className="size-12 text-emerald/30 mx-auto mb-3" />
+                      <p className="text-muted-foreground">Aucune notification. Tout est à jour !</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+
+              {stats && stats.enAttente > 0 && (
+                <Card className="border-border/50">
+                  <CardHeader>
+                    <CardTitle className="font-serif text-lg">Résumé des actions requises</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                        <div className="flex items-center gap-3">
+                          <Clock className="size-5 text-yellow-600" />
+                          <span className="text-sm font-medium">En attente de validation</span>
+                        </div>
+                        <Badge className="bg-yellow-500/10 text-yellow-600 border-yellow-500/20">{stats.enAttente}</Badge>
+                      </div>
+                      <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                        <div className="flex items-center gap-3">
+                          <CheckCircle2 className="size-5 text-emerald" />
+                          <span className="text-sm font-medium">Déjà acceptées</span>
+                        </div>
+                        <Badge className="bg-emerald/10 text-emerald border-emerald/20">{stats.acceptes}</Badge>
+                      </div>
+                      <div className="flex items-center justify-between p-3 rounded-lg bg-muted/50">
+                        <div className="flex items-center gap-3">
+                          <XCircle className="size-5 text-red-500" />
+                          <span className="text-sm font-medium">Refusées</span>
+                        </div>
+                        <Badge className="bg-red-500/10 text-red-600 border-red-500/20">{stats.refuses}</Badge>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
+            </motion.div>
+          )}
+
+          {/* Settings */}
+          {activeTab === 'settings' && (
+            <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-6">
+              <Card className="border-border/50">
+                <CardHeader>
+                  <CardTitle className="font-serif text-xl flex items-center gap-2">
+                    <Target className="size-5 text-emerald" />
+                    Paramètres de l&apos;administration
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Admin Info */}
+                  <div className="space-y-4">
+                    <h4 className="font-medium text-foreground">Informations de l&apos;administrateur</h4>
+                    <div className="bg-muted/50 rounded-xl p-4 space-y-2">
+                      <div className="flex items-center gap-3">
+                        <div className="relative w-12 h-12 rounded-full overflow-hidden ring-2 ring-emerald/30">
+                          <Image src="/logo.jpeg" alt="Logo" fill className="object-cover" sizes="48px" />
+                        </div>
+                        <div>
+                          <p className="font-serif font-bold text-foreground">ONGD LUVHES FAMILLE ESENGO</p>
+                          <p className="text-xs text-muted-foreground">Session active</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Security */}
+                  <div className="space-y-4">
+                    <h4 className="font-medium text-foreground">Sécurité</h4>
+                    <div className="bg-muted/50 rounded-xl p-4 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="size-4 text-emerald" />
+                          <span className="text-sm">Protection contre les injections SQL</span>
+                        </div>
+                        <Badge className="bg-emerald/10 text-emerald border-emerald/20">Actif</Badge>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="size-4 text-emerald" />
+                          <span className="text-sm">Validation des données côté serveur</span>
+                        </div>
+                        <Badge className="bg-emerald/10 text-emerald border-emerald/20">Actif</Badge>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="size-4 text-emerald" />
+                          <span className="text-sm">Authentification par mot de passe</span>
+                        </div>
+                        <Badge className="bg-emerald/10 text-emerald border-emerald/20">Actif</Badge>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="size-4 text-emerald" />
+                          <span className="text-sm">Session avec expiration (24h)</span>
+                        </div>
+                        <Badge className="bg-emerald/10 text-emerald border-emerald/20">Actif</Badge>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Session */}
+                  <div className="space-y-4">
+                    <h4 className="font-medium text-foreground">Session</h4>
+                    <div className="bg-muted/50 rounded-xl p-4">
+                      <p className="text-sm text-muted-foreground mb-3">
+                        Votre session d&apos;administration est active. Elle expirera automatiquement après 24 heures.
+                      </p>
+                      <Button
+                        variant="outline"
+                        className="text-red-500 border-red-200 hover:bg-red-50 hover:text-red-600"
+                        onClick={onLogout}
+                      >
+                        <LogOut className="size-4 mr-2" />
+                        Déconnexion
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </motion.div>
+          )}
         </div>
       </main>
     </div>
@@ -1222,6 +1384,7 @@ export default function Home() {
   /* ─── HASH-BASED ROUTING STATE ─── */
   const [currentView, setCurrentView] = useState<'main' | 'inscription' | 'admin'>('main')
   const [adminMode, setAdminMode] = useState(false)
+  const adminModeRef = useRef(false)
   const [adminToken, setAdminToken] = useState('')
   const [showLoginDialog, setShowLoginDialog] = useState(false)
   const [loginPassword, setLoginPassword] = useState('')
@@ -1242,6 +1405,9 @@ export default function Home() {
   const heroY = useTransform(scrollYProgress, [0, 1], ['0%', '30%'])
   const heroOpacity = useTransform(scrollYProgress, [0, 0.8], [1, 0])
 
+  /* ─── KEEP REF IN SYNC ─── */
+  useEffect(() => { adminModeRef.current = adminMode }, [adminMode])
+
   /* ─── HASH ROUTING ─── */
   useEffect(() => {
     const updateView = () => {
@@ -1249,7 +1415,7 @@ export default function Home() {
       if (hash === 'inscription') {
         setCurrentView('inscription')
       } else if (hash === 'admin') {
-        if (adminMode) {
+        if (adminModeRef.current) {
           setCurrentView('admin')
         } else {
           setCurrentView('main')
@@ -1270,6 +1436,7 @@ export default function Home() {
     if (storedToken) {
       setAdminToken(storedToken)
       setAdminMode(true)
+      adminModeRef.current = true
     }
   }, [])
 
@@ -1292,6 +1459,8 @@ export default function Home() {
       localStorage.setItem('ongd_admin_token', data.token)
       setAdminToken(data.token)
       setAdminMode(true)
+      adminModeRef.current = true // Update ref synchronously to prevent race condition
+      setCurrentView('admin') // Directly set view instead of relying on hash
       setShowLoginDialog(false)
       setLoginPassword('')
       setLoginError('')
@@ -1308,6 +1477,8 @@ export default function Home() {
     localStorage.removeItem('ongd_admin_token')
     setAdminToken('')
     setAdminMode(false)
+    adminModeRef.current = false
+    setCurrentView('main')
     window.location.hash = '#accueil'
     toast.success('Déconnexion réussie.')
   }
